@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-cloudflare-dns"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cloudflare DNS MCP server — manage zones, records, cache, and page rules from any MCP-compatible AI assistant"
 readme = "README.md"
 license = { text = "MIT" }

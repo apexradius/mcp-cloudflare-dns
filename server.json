@@ -7,12 +7,12 @@
     "url": "https://github.com/apexradius/mcp-cloudflare-dns",
     "source": "github"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "mcp-cloudflare-dns",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "installInstructions": "uvx mcp-cloudflare-dns",
       "transport": {
         "type": "stdio"
