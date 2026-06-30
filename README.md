@@ -100,3 +100,5 @@ Minimum required scopes for your token:
 ## License
 
 MIT
+
+<!-- mcp-name: io.github.Ayo-Fam/mcp-cloudflare-dns -->

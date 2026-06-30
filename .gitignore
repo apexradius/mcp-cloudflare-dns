@@ -9,6 +9,8 @@ build/
 venv/
 .env
 
+!server.json
+
 # uv
 uv.lock
 

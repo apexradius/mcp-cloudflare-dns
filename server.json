@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Ayo-Fam/mcp-cloudflare-dns",
+  "title": "MCP Cloudflare DNS",
+  "description": "Cloudflare DNS MCP server: manage zones, records, cache purge, and page rules.",
+  "repository": {
+    "url": "https://github.com/apexradius/mcp-cloudflare-dns",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-cloudflare-dns",
+      "version": "0.1.0",
+      "installInstructions": "uvx mcp-cloudflare-dns",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "CF_API_TOKEN",
+          "description": "Cloudflare API token with Zone DNS Edit, Zone Read, and Cache Purge permissions",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "CF_ALLOW_DESTRUCTIVE",
+          "description": "Set to 'true' to enable DNS record deletion and full cache purge",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
