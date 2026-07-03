@@ -14,6 +14,60 @@ Cloudflare DNS MCP server. Manage zones, DNS records, cache, and page rules from
 
 ---
 
+## Start Here
+
+| You are | Start with | Time |
+|---|---|---:|
+| Installing the server | [Quickstart](#quickstart) | 5 min |
+| Creating a safe API token | [API token permissions](#api-token-permissions) | 5 min |
+| Extending DNS/cache tools | [docs/architecture.md](docs/architecture.md) and `cf/server.py` | 15 min |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Client[MCP client] -->|stdio or SSE| Server[cf/server.py]
+    Server --> Env[CF_API_TOKEN]
+    Server --> Guard{Destructive allowed?}
+    Server --> SDK[Cloudflare SDK]
+
+    SDK --> Zones[Zones]
+    SDK --> DNS[DNS records]
+    SDK --> Cache[Cache purge]
+    SDK --> Rules[Page rules]
+
+    Guard -->|false| Block[Block delete/full purge]
+    Guard -->|true| SDK
+    Zones --> Result[MCP result]
+    DNS --> Result
+    Cache --> Result
+    Rules --> Result
+    Result --> Client
+```
+
+More detail lives in [docs/architecture.md](docs/architecture.md).
+
+---
+
+## Primary Workflow
+
+```mermaid
+flowchart TD
+    Ask([User asks DNS task]) --> Tool[Select MCP tool]
+    Tool --> Validate{Token present?}
+    Validate -->|no| ConfigError[Return config error]
+    Validate -->|yes| Risk{Destructive action?}
+    Risk -->|yes| Allow{CF_ALLOW_DESTRUCTIVE=true?}
+    Risk -->|no| Call[Call Cloudflare API]
+    Allow -->|no| Refuse[Refuse safely]
+    Allow -->|yes| Call
+    Call --> Return[Return zone or record result]
+```
+
+---
+
 ## Why this one?
 
 The official Cloudflare MCP covers Workers, KV, D1, and R2 — but has **zero DNS tools**. This server fills that gap.
@@ -100,5 +154,10 @@ Minimum required scopes for your token:
 ## License
 
 MIT
+
+## Reference
+
+- [Start here](docs/start-here.md)
+- [Architecture](docs/architecture.md)
 
 <!-- mcp-name: io.github.Ayo-Fam/mcp-cloudflare-dns -->
