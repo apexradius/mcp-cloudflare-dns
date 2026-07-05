@@ -1,31 +1,49 @@
-# Start Here
+# Start Here — mcp-cloudflare-dns
 
-This server exposes Cloudflare DNS, cache purge, zone settings, and page-rule operations through
-MCP. It is intentionally scoped to DNS/admin gaps that the broader Cloudflare MCP server does not
-cover.
+## What this repo ships
 
-## First Run
+- One Python package: `mcp-cloudflare-dns`
+- One MCP server entry point: `cf.server:main`
+- One tool surface for Cloudflare zones, DNS records, cache purge, and page rules
 
-```bash
-uvx mcp-cloudflare-dns
-```
+## First run
 
-Add `CF_API_TOKEN` to the MCP client environment. Use a scoped token; do not paste account-global
-credentials into config examples.
-
-## Safe Operations
-
-1. Create a token with the minimum scopes listed in the README.
-2. Start without `CF_ALLOW_DESTRUCTIVE`.
-3. Confirm read/list operations first.
-4. Enable `CF_ALLOW_DESTRUCTIVE=true` only when delete/full-purge tools are intentional.
-
-## Development Loop
+1. Install the package:
 
 ```bash
-uv sync
-uv run ruff check .
-uv run python -m cf.server
+python -m pip install mcp-cloudflare-dns
 ```
 
-Tool registration and Cloudflare SDK calls live in `cf/server.py`.
+2. Export a token:
+
+```bash
+export CF_API_TOKEN="your-cloudflare-api-token"
+```
+
+3. Start it from an MCP client with `uvx mcp-cloudflare-dns`, or run it inside your own Python
+environment with the same env var present.
+
+## Required environment
+
+| Variable | Required | Notes |
+|---|---|---|
+| `CF_API_TOKEN` | yes | Primary Cloudflare token name |
+| `CLOUDFLARE_API_TOKEN` | optional | Alternate token name accepted by the server |
+| `CF_ALLOW_DESTRUCTIVE` | optional | Required for destructive record or cache actions |
+| `MCP_TRANSPORT` | optional | `stdio` by default; use `sse` for remote hosting |
+| `MCP_HOST` / `MCP_PORT` | optional | SSE bind address when remote transport is enabled |
+
+## Validation commands
+
+```bash
+python -m compileall cf
+python -m build
+```
+
+## Common failures
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `CF_API_TOKEN not set` | Env var missing | Export the token before launch |
+| Cloudflare 403/401 | Token scope too narrow | Add Zone DNS / Zone Read / Cache Purge permissions |
+| Destructive tool refuses to run | Safety flag missing | Set `CF_ALLOW_DESTRUCTIVE=true` intentionally |

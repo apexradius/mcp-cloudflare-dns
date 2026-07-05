@@ -1,95 +1,59 @@
 # mcp-cloudflare-dns
 
-Cloudflare DNS MCP server. Manage zones, DNS records, cache, and page rules from Claude, Cursor, Codex, or any MCP-compatible AI assistant.
+Cloudflare DNS MCP server for operators who need zone, record, cache, and page-rule control from
+an MCP client without opening the Cloudflare dashboard for every change.
 
-```
-# Install:  uvx mcp-cloudflare-dns
+Release posture: beta package, version `0.1.1` from [`pyproject.toml`](pyproject.toml).
 
-# Ask your AI:
-"List all DNS records for example.com"
-"Add a CNAME record pointing api.example.com to my-app.vercel.app"
-"Purge the cache for https://example.com/products"
-"What page rules are active on example.com?"
-```
+## Choose your path
 
----
-
-## Start Here
-
-| You are | Start with | Time |
-|---|---|---:|
-| Installing the server | [Quickstart](#quickstart) | 5 min |
-| Creating a safe API token | [API token permissions](#api-token-permissions) | 5 min |
-| Extending DNS/cache tools | [docs/architecture.md](docs/architecture.md) and `cf/server.py` | 15 min |
-
----
+| You are... | Start here | Then |
+|---|---|---|
+| Installing the server in Claude/Codex/Cursor | [docs/start-here.md](docs/start-here.md) | Quick start below |
+| Verifying what the server can touch | [Available tools](#available-tools) | [docs/architecture.md](docs/architecture.md) |
+| Auditing packaging or release metadata | [`pyproject.toml`](pyproject.toml) | [`server.json`](server.json) |
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    Client[MCP client] -->|stdio or SSE| Server[cf/server.py]
-    Server --> Env[CF_API_TOKEN]
-    Server --> Guard{Destructive allowed?}
-    Server --> SDK[Cloudflare SDK]
-
-    SDK --> Zones[Zones]
-    SDK --> DNS[DNS records]
-    SDK --> Cache[Cache purge]
-    SDK --> Rules[Page rules]
-
-    Guard -->|false| Block[Block delete/full purge]
-    Guard -->|true| SDK
-    Zones --> Result[MCP result]
-    DNS --> Result
-    Cache --> Result
-    Rules --> Result
-    Result --> Client
+  U[AI operator] --> C[MCP client]
+  C --> S[FastMCP server]
+  E[CF_API_TOKEN] --> S
+  S --> T[Tool handlers]
+  T --> R[Retry wrapper]
+  R --> A[Cloudflare API]
+  A --> R --> T --> C
 ```
 
-More detail lives in [docs/architecture.md](docs/architecture.md).
-
----
-
-## Primary Workflow
+## Request flow
 
 ```mermaid
 flowchart TD
-    Ask([User asks DNS task]) --> Tool[Select MCP tool]
-    Tool --> Validate{Token present?}
-    Validate -->|no| ConfigError[Return config error]
-    Validate -->|yes| Risk{Destructive action?}
-    Risk -->|yes| Allow{CF_ALLOW_DESTRUCTIVE=true?}
-    Risk -->|no| Call[Call Cloudflare API]
-    Allow -->|no| Refuse[Refuse safely]
-    Allow -->|yes| Call
-    Call --> Return[Return zone or record result]
+  Q[Operator asks for a DNS change] --> H[Selected MCP tool]
+  H --> I[Load token and build client]
+  I --> J{Cloudflare call succeeds?}
+  J -- yes --> K[Return normalized JSON result]
+  J -- retryable --> L[Backoff and retry]
+  L --> J
+  J -- no --> M[Return error payload]
 ```
 
----
+## Quick start
 
-## Why this one?
+1. Install the package.
 
-The official Cloudflare MCP covers Workers, KV, D1, and R2 — but has **zero DNS tools**. This server fills that gap.
+```bash
+python -m pip install mcp-cloudflare-dns
+```
 
-| Feature | This server | Official CF MCP |
-|---|---|---|
-| DNS record CRUD | Yes | No |
-| Zone listing | Yes | No |
-| Cache purge | Yes | No |
-| Page rules | Yes | No |
-| Zone settings | Yes | No |
-| Workers/KV/D1/R2 | No | Yes |
+2. Export a token with DNS permissions.
 
-They complement each other — use both.
+```bash
+export CF_API_TOKEN="your-cloudflare-api-token"
+```
 
----
-
-## Quickstart
-
-**1. Get a Cloudflare API token** — [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens) → Create Token → use "Edit zone DNS" template
-
-**2. Add to your MCP client config:**
+3. Register it in your MCP client.
 
 ```json
 {
@@ -105,59 +69,46 @@ They complement each other — use both.
 }
 ```
 
-**3. Restart your AI client. Done.**
-
----
-
 ## Available tools
 
-| Tool | What it does |
-|---|---|
-| `list_zones` | All zones on your account with status and nameservers |
-| `get_zone` | Details for a specific zone |
-| `get_zone_settings` | SSL mode, security level, minification, HTTPS redirect, etc. |
-| `list_dns_records` | All DNS records, filterable by type or name |
-| `get_dns_record` | Single record by ID |
-| `create_dns_record` | Add A, AAAA, CNAME, MX, TXT, NS, etc. |
-| `update_dns_record` | Edit content, TTL, proxy status, or comment |
-| `delete_dns_record` | Remove a record *(requires `CF_ALLOW_DESTRUCTIVE=true`)* |
-| `purge_cache` | Purge specific URLs or entire zone cache |
-| `list_page_rules` | All page rules with targets and actions |
-
----
-
-## Environment variables
-
-| Variable | Required | Description |
+| Tool group | Tools | Purpose |
 |---|---|---|
-| `CF_API_TOKEN` | Yes | Cloudflare API token (also accepts `CLOUDFLARE_API_TOKEN`) |
-| `CF_ALLOW_DESTRUCTIVE` | No | Set to `true` to enable record deletion and full cache purge |
-| `MCP_TRANSPORT` | No | Set to `sse` for remote/VPS deployment (default: `stdio`) |
-| `MCP_HOST` | No | SSE bind host (default: `127.0.0.1`) |
-| `MCP_PORT` | No | SSE bind port (default: `3001`) |
+| Zone inventory | `list_zones`, `get_zone`, `get_zone_settings` | Inspect available zones and key settings |
+| DNS records | `list_dns_records`, `get_dns_record`, `create_dns_record`, `update_dns_record`, `delete_dns_record` | Read and mutate records |
+| Edge actions | `purge_cache`, `list_page_rules` | Invalidate cached content and inspect page rules |
 
----
+`delete_dns_record` and full-cache actions stay gated behind the destructive env flags described in
+[docs/start-here.md](docs/start-here.md).
 
-## API token permissions
+## Runtime proof
 
-Minimum required scopes for your token:
-
-| Resource | Permission |
+| Claim | Proof |
 |---|---|
-| Zone — DNS | Edit |
-| Zone — Zone | Read |
-| Zone — Cache Purge | Purge |
-| Zone — Page Rules | Edit *(if using page rules tools)* |
+| Package entry point is stable | `mcp-cloudflare-dns = "cf.server:main"` in [`pyproject.toml`](pyproject.toml) |
+| Server is MCP-specific, not a generic CLI | `FastMCP("mcp-cloudflare-dns")` in [`cf/server.py`](cf/server.py) |
+| Cloudflare failures are retried | `_call()` in [`cf/server.py`](cf/server.py) |
+| Release artifacts are built | `dist/` wheel and tarball are checked into the repo |
 
----
+## Repo map
+
+| Path | Purpose |
+|---|---|
+| [`cf/server.py`](cf/server.py) | FastMCP tool surface, env loading, retry wrapper |
+| [`pyproject.toml`](pyproject.toml) | Package metadata, version, script entry point |
+| [`server.json`](server.json) | Registry-facing metadata for MCP discovery |
+| [`docs/start-here.md`](docs/start-here.md) | Setup, env, validation, common failures |
+| [`docs/architecture.md`](docs/architecture.md) | Component map and request lifecycle |
+
+## Validation
+
+| Check | Command |
+|---|---|
+| Import compiles | `python -m compileall cf` |
+| Package builds | `python -m build` |
+| README links stay local | `rg '\\]\\(([^)]+\\.md)\\)' README.md docs/` |
 
 ## License
 
 MIT
-
-## Reference
-
-- [Start here](docs/start-here.md)
-- [Architecture](docs/architecture.md)
 
 <!-- mcp-name: io.github.Ayo-Fam/mcp-cloudflare-dns -->

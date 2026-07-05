@@ -1,57 +1,25 @@
-# Architecture
+# Architecture — mcp-cloudflare-dns
 
-`mcp-cloudflare-dns` is a Python MCP server around Cloudflare zone administration. It keeps the
-surface small: zones, records, cache purge, page rules, and settings.
+## Component map
 
-## Components
-
-```mermaid
-flowchart TD
-    Main[cf/server.py] --> Tools[MCP tools]
-    Tools --> Env[Environment config]
-    Tools --> Guard[Destructive guard]
-    Tools --> Client[Cloudflare SDK client]
-
-    Client --> Zones[Zone APIs]
-    Client --> Records[DNS record APIs]
-    Client --> Cache[Cache APIs]
-    Client --> PageRules[Page Rules APIs]
-```
-
-## Request Sequence
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant MCP as MCP client
-    participant Server as cf/server.py
-    participant Guard as Destructive guard
-    participant CF as Cloudflare API
-
-    User->>MCP: Ask to manage DNS
-    MCP->>Server: Call MCP tool
-    Server->>Guard: Check risk and env flag
-    alt operation allowed
-        Server->>CF: Run zone/DNS/cache request
-        CF-->>Server: API response
-        Server-->>MCP: Structured result
-    else blocked
-        Server-->>MCP: Safe refusal with reason
-    end
-```
-
-## Data Boundaries
-
-| Data | Source | Storage |
+| Component | File | Role |
 |---|---|---|
-| Cloudflare API token | `CF_API_TOKEN` or `CLOUDFLARE_API_TOKEN` | Environment only. |
-| Destructive mode | `CF_ALLOW_DESTRUCTIVE` | Environment only. |
-| Zone/record data | Cloudflare API | Returned through MCP; not persisted here. |
+| MCP server | [`../cf/server.py`](../cf/server.py) | Declares every tool and returns normalized responses |
+| Cloudflare client loader | [`../cf/server.py`](../cf/server.py) | Reads `CF_API_TOKEN` once and memoizes the client |
+| Retry wrapper | [`../cf/server.py`](../cf/server.py) | Retries 429/5xx Cloudflare failures with backoff |
+| Package metadata | [`../pyproject.toml`](../pyproject.toml) | Version, dependencies, script entry point |
+| Registry metadata | [`../server.json`](../server.json) | External MCP registry description |
 
-## Extension Points
+## Tool families
 
-| Change | File |
-|---|---|
-| Add a new Cloudflare tool | `cf/server.py` |
-| Change destructive safety rules | `cf/server.py` |
-| Add package metadata | `pyproject.toml` |
+- Zone tools: inventory and settings inspection
+- DNS tools: list, read, create, update, delete
+- Edge actions: cache purge and page-rule inspection
+
+## Lifecycle
+
+1. The MCP client starts `mcp-cloudflare-dns`.
+2. `FastMCP` registers the tool surface from `cf/server.py`.
+3. The first tool call resolves `CF_API_TOKEN` and builds the Cloudflare SDK client.
+4. Tool handlers call `_call()`, which retries retryable API failures.
+5. Responses are normalized to plain dictionaries before returning to the MCP client.
