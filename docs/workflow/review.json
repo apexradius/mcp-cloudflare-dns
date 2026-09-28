@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "complete": false,
+  "scope": "Cloudflare DNS MCP: portable document navigation and source-bound review continuity; no product runtime changes.",
+  "reviewed_at": "2026-09-28T15:22:01.530778+00:00",
+  "source_revision": "3b6b4f25fa52b1b4e7b9ec2c282503c3c7deed61",
+  "files": {
+    "README.md": "81fa440ef537d2731edda845ce8c1decef135e4cbc9afb5812a8985c9e09a2a0",
+    "prompt.md": "3fee5fb46d2f7b9c83cf5e8035c0d0f94b9531bb894bc6912339af8914cd3a53",
+    "INDEX.md": "6febaa1a9bd4a0cdb24fe2ac751ac501d5ae316fdb8b434f36ffc2df3b66d450",
+    "docs/workflow/HANDOFFS.md": "e318fe23516f5fe9b6cd679824496892bc81314fcd648458fb7fc627164dedd4"
+  },
+  "stages": {
+    "local": {
+      "required": true,
+      "status": "pending",
+      "evidence": "Run tracked navigation, review consistency, checker fixtures and repository-required checks before delivery."
+    },
+    "ci": {
+      "required": true,
+      "status": "pending",
+      "evidence": "Current candidate hosted checks not yet observed."
+    },
+    "merge": {
+      "required": true,
+      "status": "pending",
+      "evidence": "Current candidate not delivered."
+    },
+    "deployment": {
+      "required": false,
+      "status": "not_applicable",
+      "evidence": "Documentation-only scope; no product release authorized by this record."
+    },
+    "knowledge": {
+      "required": true,
+      "status": "pending",
+      "evidence": "Canonical documentation prepared; portfolio summary closeout remains pending."
+    }
+  }
+}
