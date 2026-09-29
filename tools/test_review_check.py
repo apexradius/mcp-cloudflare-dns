@@ -48,10 +48,14 @@ class ReviewChecks(unittest.TestCase):
         self.record['complete']=True
         for stage in self.record['stages'].values():
             stage.update(status='passed',evidence='Bounded inspected receipt')
-        self.record['stages']['deployment'].update(required=False,status='not_applicable',evidence='Local CLI; no deployed service')
         self.assertEqual([],self.errors())
         del self.record['stages']['knowledge']['evidence']
         self.assertTrue(self.errors())
+    def test_deployment_live_product_validation_cannot_be_waived(self):
+        self.record['stages']['deployment'].update(required=False,status='not_applicable',evidence='Documentation-only scope; no product release authorized')
+        self.assertTrue(any('deployment' in e for e in self.errors()))
+        self.record['stages']['deployment'].update(required=True,status='blocked',evidence='Unavailable: read-only or authorized Cloudflare API token; no live DNS zone was queried or modified')
+        self.assertEqual([],self.errors())
     def test_bad_shape_timestamp_revision_and_escape(self):
         original=deepcopy(self.record)
         for key,value in [('reviewed_at','yesterday'),('source_revision','main'),('complete','true'),('files',{'../outside':'0'*64}),('stages',[])]:

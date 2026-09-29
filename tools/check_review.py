@@ -75,6 +75,9 @@ def inspect_review(root):
             errors.append(f'{name}: a required stage cannot be not_applicable')
         if record.get('complete') and stage.get('required') and status != 'passed':
             errors.append(f'{name}: completion claimed before required stage passed')
+    deployment = stages.get('deployment')
+    if not isinstance(deployment, dict) or deployment.get('required') is not True:
+        errors.append('deployment: live-product validation is required; record it blocked with the exact unavailable surface instead of waiving it')
     return errors
 
 if __name__ == '__main__':

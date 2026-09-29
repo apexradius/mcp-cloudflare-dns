@@ -2,7 +2,7 @@
   "version": 1,
   "complete": false,
   "scope": "Cloudflare DNS MCP: portable document navigation and source-bound review continuity; no product runtime changes.",
-  "reviewed_at": "2026-09-28T15:22:01.530778+00:00",
+  "reviewed_at": "2026-09-29T03:31:06.356804+00:00",
   "source_revision": "3b6b4f25fa52b1b4e7b9ec2c282503c3c7deed61",
   "files": {
     "README.md": "81fa440ef537d2731edda845ce8c1decef135e4cbc9afb5812a8985c9e09a2a0",
@@ -27,9 +27,9 @@
       "evidence": "Current candidate not delivered."
     },
     "deployment": {
-      "required": false,
-      "status": "not_applicable",
-      "evidence": "Documentation-only scope; no product release authorized by this record."
+      "required": true,
+      "status": "blocked",
+      "evidence": "Bounded live-product exercise 2026-09-29: launched the actual stdio entrypoint (python -m cf.server -> cf.server:main) with the official MCP SDK client (mcp.ClientSession, protocol 2025-11-25); initialize succeeded and tools/list discovered the ten documented tools (create_dns_record, delete_dns_record, get_dns_record, get_zone, get_zone_settings, list_dns_records, list_page_rules, list_zones, purge_cache, update_dns_record). No-credential path (no CF_API_TOKEN): list_zones and list_dns_records returned the structured error {'error': 'CF_API_TOKEN not set. Export your Cloudflare API token before starting the server.'} before any provider call; under the official client's strict output-schema validation this surfaces as a typed invalid-structured-content failure because the error dict is outside the declared list output. Refusal path (no CF_ALLOW_DESTRUCTIVE): delete_dns_record returned {'error': 'DNS record deletion is disabled. Set CF_ALLOW_DESTRUCTIVE=true to enable.'} and purge_cache purge_everything=true returned {'error': 'purge_everything requires CF_ALLOW_DESTRUCTIVE=true.'}; no destructive tool call reached a provider. Unavailable: read-only or authorized Cloudflare API token; no live DNS zone was queried or modified; acceptance of live DNS behavior remains blocked pending authorized token access."
     },
     "knowledge": {
       "required": true,
