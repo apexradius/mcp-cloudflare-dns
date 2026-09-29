@@ -30,3 +30,8 @@ packages = ["cf"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+# Every MCP tool catches broad exceptions at its boundary to return the
+# documented structured-error dict ("error": ...) instead of crashing the call.
+[tool.ruff.lint.per-file-ignores]
+"cf/server.py" = ["BLE001"]

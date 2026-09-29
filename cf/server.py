@@ -1,6 +1,5 @@
 import os
 import time
-from typing import Optional
 
 import cloudflare
 from cloudflare import APIError, APIStatusError
@@ -8,7 +7,7 @@ from fastmcp import FastMCP
 
 mcp = FastMCP("mcp-cloudflare-dns")
 
-_client: Optional[cloudflare.Cloudflare] = None
+_client: cloudflare.Cloudflare | None = None
 
 _RETRYABLE = {429, 500, 502, 503, 504}
 _MAX_RETRIES = 5
@@ -64,7 +63,7 @@ def _record_to_dict(r) -> dict:
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def list_zones(name_filter: Optional[str] = None) -> list[dict]:
+def list_zones(name_filter: str | None = None) -> list[dict]:
     """
     List all Cloudflare zones on this account.
 
@@ -140,8 +139,8 @@ def get_zone_settings(zone_id: str) -> dict:
 @mcp.tool()
 def list_dns_records(
     zone_id: str,
-    record_type: Optional[str] = None,
-    name: Optional[str] = None,
+    record_type: str | None = None,
+    name: str | None = None,
 ) -> list[dict]:
     """
     List DNS records for a zone.
@@ -183,8 +182,8 @@ def create_dns_record(
     content: str,
     ttl: int = 1,
     proxied: bool = False,
-    priority: Optional[int] = None,
-    comment: Optional[str] = None,
+    priority: int | None = None,
+    comment: str | None = None,
 ) -> dict:
     """
     Create a new DNS record.
@@ -224,10 +223,10 @@ def create_dns_record(
 def update_dns_record(
     zone_id: str,
     record_id: str,
-    content: Optional[str] = None,
-    ttl: Optional[int] = None,
-    proxied: Optional[bool] = None,
-    comment: Optional[str] = None,
+    content: str | None = None,
+    ttl: int | None = None,
+    proxied: bool | None = None,
+    comment: str | None = None,
 ) -> dict:
     """
     Update an existing DNS record. Only the fields you provide will be changed.
@@ -290,7 +289,7 @@ def delete_dns_record(zone_id: str, record_id: str) -> dict:
 @mcp.tool()
 def purge_cache(
     zone_id: str,
-    urls: Optional[list[str]] = None,
+    urls: list[str] | None = None,
     purge_everything: bool = False,
 ) -> dict:
     """
@@ -324,7 +323,7 @@ def purge_cache(
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def list_page_rules(zone_id: str, status: Optional[str] = None) -> list[dict]:
+def list_page_rules(zone_id: str, status: str | None = None) -> list[dict]:
     """
     List page rules for a zone.
 
