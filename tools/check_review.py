@@ -3,12 +3,13 @@
 import argparse
 import hashlib
 import json
-from pathlib import Path
 import re
 import sys
 from datetime import datetime
-from markdown_links import navigation_links
+from pathlib import Path
 from urllib.parse import urlsplit
+
+from markdown_links import navigation_links
 
 REVIEWED = ('README.md', 'prompt.md', 'INDEX.md', 'docs/workflow/HANDOFFS.md')
 STAGES = ('local', 'ci', 'merge', 'deployment', 'knowledge')
