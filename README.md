@@ -112,3 +112,8 @@ export CF_API_TOKEN="your-cloudflare-api-token"
 MIT
 
 <!-- mcp-name: io.github.Ayo-Fam/mcp-cloudflare-dns -->
+
+
+## Project context for new tasks
+
+Read [prompt.md](prompt.md), then [INDEX.md](INDEX.md), for project-specific decisions, task routes and current handoff. Historical examples do not select the current task.
