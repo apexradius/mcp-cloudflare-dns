@@ -5,15 +5,15 @@
 | Question | Answer |
 | --- | --- |
 | **Whom?** | infrastructure operator managing an explicitly selected Cloudflare zone and DNS record. |
-| **What?** | CF_ALLOW_DESTRUCTIVE accepts any nonempty environment value, including false. |
+| **What?** | CF_ALLOW_DESTRUCTIVE enables DNS record deletion and whole-zone purge only with a trimmed, case-insensitive true value; all other values and a missing flag deny. |
 | **Where?** | cf/server.py, tests/test_server.py. |
 | **Why it exists?** | Cloudflare DNS MCP needs this document to identify the trust boundary before the first side effect. |
-| **Why this approach?** | CF_ALLOW_DESTRUCTIVE accepts any nonempty environment value, including false. |
+| **Why this approach?** | CF_ALLOW_DESTRUCTIVE enables DNS record deletion and whole-zone purge only with a trimmed, case-insensitive true value; all other values and a missing flag deny. |
 | **Why it matters?** | Zone ID and record ID define the target. |
 
 ## Trust boundary
 
-CF_ALLOW_DESTRUCTIVE accepts any nonempty environment value, including false. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
+CF_ALLOW_DESTRUCTIVE enables DNS record deletion and whole-zone purge only with a trimmed, case-insensitive true value; every other value, including false, 0 and yes, and a missing flag deny before provider access. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
 
 ## Protected product behavior
 
