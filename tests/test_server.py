@@ -46,6 +46,32 @@ class CredentialGuardTests(unittest.TestCase):
 
 
 class DestructiveGuardTests(unittest.TestCase):
+    def test_explicit_true_flags_allow_provider_operation(self):
+        for value in ("true", " TRUE "):
+            for operation, args, kwargs in [
+                ("delete_dns_record", ('zone123', 'rec456'), {}),
+                ("purge_cache", ('zone123',), {'purge_everything': True}),
+            ]:
+                with self.subTest(flag=value, operation=operation):
+                    with mock.patch.dict("os.environ", {"CF_ALLOW_DESTRUCTIVE": value}, clear=True):
+                        with mock.patch.object(server, "_get_client") as provider:
+                            result = getattr(server, operation)(*args, **kwargs)
+                    self.assertTrue(result.get("success"))
+                    provider.assert_called_once()
+
+    def test_false_flags_deny_without_initializing_provider(self):
+        for value in ("", "false", "False", "0", "no", "yes", "1"):
+            for operation, args, kwargs in [
+                ("delete_dns_record", ('zone123', 'rec456'), {}),
+                ("purge_cache", ('zone123',), {'purge_everything': True}),
+            ]:
+                with self.subTest(flag=value, operation=operation):
+                    with mock.patch.dict("os.environ", {"CF_ALLOW_DESTRUCTIVE": value}, clear=True):
+                        with mock.patch.object(server, "_get_client") as provider:
+                            result = getattr(server, operation)(*args, **kwargs)
+                    self.assertIn("error", result)
+                    provider.assert_not_called()
+
     def test_delete_record_disabled_without_flag(self):
         with mock.patch.dict("os.environ", {}, clear=True):
             result = server.delete_dns_record("zone123", "rec456")
