@@ -1,16 +1,16 @@
 {
   "version": 1,
   "complete": false,
-  "scope": "Concise task-directed project guidance; documentation-only PR delivery, preserving historical product acceptance limits in the existing report.",
-  "reviewed_at": "2026-10-24T07:38:01.147360+00:00",
-  "source_revision": "bc260ace71502fe058eeaeb524df2c7be3146b4f",
+  "scope": "Strict explicit-true CF_ALLOW_DESTRUCTIVE guard with owning-doc corrections and a refreshed snapshot; PR delivery under the user-approved local-checks CI exception, preserving historical product acceptance limits in the existing report.",
+  "reviewed_at": "2026-10-25T06:33:55.940743+00:00",
+  "source_revision": "7f77a98055d0e8e36f6d50b0fb980bddb72c5541",
   "files": {
     "README.md": "9b3b38d1c7fe7d802426b1b22c017b1eae5d591b7ad3caf326bbc0a1a922c4d6",
     "prompt.md": "883b24295237c03a02e4bd5d1e2e8214e9f7418e313b793e94a27d5c7a2604ed",
     "INDEX.md": "3fde53f3c4752b65508b9aafd6ffebb546b9080b0c6ed6e93079ef68c7e1d6f5",
     "docs/workflow/HANDOFFS.md": "20505200b36638e7770f7017fd85017e6e95a6d069ad62ccacf21cb4cb4ca7a0",
     "docs/workflow/AGENTS.md": "c54e3c84f9883f90faeac40eda2768a37d9c6319adfdba5d8247d175ed0d5649",
-    "docs/workflow/CAPABILITIES.md": "0c7125fb95c5364ea5d8e30ec85bc8fd54d6933ca696c1589d2792aca5eac6fa",
+    "docs/workflow/CAPABILITIES.md": "26959c2c6732cee1d12c90d5c4328e05f5c6cf396b545fe009cbb8d16a6aa5ac",
     "docs/workflow/TESTING.md": "b6333e41a014d6118b11df90b60a4ada42c80c16505b895a81b605207c5a8533",
     "docs/workflow/REPORT.md": "a99bed3df2224dcade1dfe24684eeac768018ee1e954070423631d35cc383a8e"
   },
@@ -18,12 +18,12 @@
     "local": {
       "required": true,
       "status": "passed",
-      "evidence": "26 existing documentation checker fixtures passed, with tracked navigation and review consistency validation. Hosted Actions are absent at the current base; local documentation gates used."
+      "evidence": "26 existing documentation checker fixtures passed, with tracked navigation and review consistency validation. Hosted Actions are absent at the current base; local documentation gates used. Re-verified 2026-10-25 at reviewed head 7f77a98 after the explicit-true destructive-flag repair (374bb52); later head 3bddf26 only reformats the guard tests."
     },
     "ci": {
       "required": true,
       "status": "passed",
-      "evidence": "26 existing documentation checker fixtures passed, with tracked navigation and review consistency validation. Hosted Actions are absent at the current base; local documentation gates used."
+      "evidence": "26 existing documentation checker fixtures passed, with tracked navigation and review consistency validation. Hosted Actions are absent at the current base; local documentation gates used. Re-verified 2026-10-25 at reviewed head 7f77a98 under the user-approved local-checks CI exception; no hosted CI, merge or deployment has run."
     },
     "merge": {
       "required": true,
@@ -33,7 +33,7 @@
     "deployment": {
       "required": true,
       "status": "blocked",
-      "evidence": "Bounded live-product exercise 2026-09-29: launched the actual stdio entrypoint (python -m cf.server -> cf.server:main) with the official MCP SDK client (mcp.ClientSession, protocol 2025-11-25); initialize succeeded and tools/list discovered the ten documented tools (create_dns_record, delete_dns_record, get_dns_record, get_zone, get_zone_settings, list_dns_records, list_page_rules, list_zones, purge_cache, update_dns_record). No-credential path (no CF_API_TOKEN): list_zones and list_dns_records returned the structured error {'error': 'CF_API_TOKEN not set. Export your Cloudflare API token before starting the server.'} before any provider call; under the official client's strict output-schema validation this surfaces as a typed invalid-structured-content failure because the error dict is outside the declared list output. Refusal path (no CF_ALLOW_DESTRUCTIVE): delete_dns_record returned {'error': 'DNS record deletion is disabled. Set CF_ALLOW_DESTRUCTIVE=true to enable.'} and purge_cache purge_everything=true returned {'error': 'purge_everything requires CF_ALLOW_DESTRUCTIVE=true.'}; no destructive tool call reached a provider. Unavailable: read-only or authorized Cloudflare API token; no live DNS zone was queried or modified; acceptance of live DNS behavior remains blocked pending authorized token access."
+      "evidence": "Bounded live-product exercise 2026-09-29: launched the actual stdio entrypoint (python -m cf.server -> cf.server:main) with the official MCP SDK client (mcp.ClientSession, protocol 2025-11-25); initialize succeeded and tools/list discovered the ten documented tools (create_dns_record, delete_dns_record, get_dns_record, get_zone, get_zone_settings, list_dns_records, list_page_rules, list_zones, purge_cache, update_dns_record). No-credential path (no CF_API_TOKEN): list_zones and list_dns_records returned the structured error {'error': 'CF_API_TOKEN not set. Export your Cloudflare API token before starting the server.'} before any provider call; under the official client's strict output-schema validation this surfaces as a typed invalid-structured-content failure because the error dict is outside the declared list output. Refusal path (no CF_ALLOW_DESTRUCTIVE): delete_dns_record returned {'error': 'DNS record deletion is disabled. Set CF_ALLOW_DESTRUCTIVE=true to enable.'} and purge_cache purge_everything=true returned {'error': 'purge_everything requires CF_ALLOW_DESTRUCTIVE=true.'}; no destructive tool call reached a provider. Unavailable: read-only or authorized Cloudflare API token; no live DNS zone was queried or modified; acceptance of live DNS behavior remains blocked pending authorized token access. Current correction 2026-10-25: delete_dns_record and whole-zone purge now require an explicit trimmed case-insensitive CF_ALLOW_DESTRUCTIVE=true (374bb52) and are covered by local real-import fake-provider guard tests; live provider validation remains unperformed."
     },
     "knowledge": {
       "required": true,

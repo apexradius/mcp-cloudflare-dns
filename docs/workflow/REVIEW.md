@@ -42,3 +42,7 @@ Prior review artifact names: `tooling-independent-review.json`. The owner retain
 ## Limits
 
 No new fresh-runtime comprehension, deployed behavior, provider operation or release is claimed. The current user request selects work; these scenarios are examples, not standing tasks. Local/CI/merge/knowledge status is recorded separately in review.json.
+
+## Correction 2026-10-25
+
+The destructive-flag statement in the retry scenario above is superseded at commits `374bb52` (guard) and `7f77a98` (owning docs): `delete_dns_record` and `purge_cache` with `purge_everything=true` now proceed only when `CF_ALLOW_DESTRUCTIVE` equals a trimmed, case-insensitive `true`; `false`, `0`, `yes` and a missing flag all deny before provider initialization, as covered by the fake-provider guard tests in `tests/test_server.py`. The 2026-09-28 sentence "False string is truthy only for delete/whole-zone purge" therefore describes only that dated baseline, not current code. The remaining caution still holds: create, update and targeted purge stay unguarded external writes with no idempotency journal.
