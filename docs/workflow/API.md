@@ -34,7 +34,7 @@ These signatures are transcribed from the current Python handler definitions. Op
 
 ## Authorization and error limits
 
-CF_ALLOW_DESTRUCTIVE accepts any nonempty environment value, including false. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
+CF_ALLOW_DESTRUCTIVE enables DNS record deletion and whole-zone purge only with a trimmed, case-insensitive true value; every other value, including false, 0 and yes, and a missing flag deny before provider access. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
 
 ## Contract gaps
 

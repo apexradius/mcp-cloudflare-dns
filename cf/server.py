@@ -272,7 +272,7 @@ def delete_dns_record(zone_id: str, record_id: str) -> dict:
         zone_id: Cloudflare zone ID
         record_id: DNS record ID to delete
     """
-    if not os.environ.get("CF_ALLOW_DESTRUCTIVE"):
+    if os.environ.get("CF_ALLOW_DESTRUCTIVE", "").strip().lower() != "true":
         return {"error": "DNS record deletion is disabled. Set CF_ALLOW_DESTRUCTIVE=true to enable."}
     try:
         cf = _get_client()
@@ -300,7 +300,7 @@ def purge_cache(
         urls: Specific URLs to purge (up to 30 per call)
         purge_everything: Purge entire zone cache (overrides urls). Requires CF_ALLOW_DESTRUCTIVE=true.
     """
-    if purge_everything and not os.environ.get("CF_ALLOW_DESTRUCTIVE"):
+    if purge_everything and os.environ.get("CF_ALLOW_DESTRUCTIVE", "").strip().lower() != "true":
         return {"error": "purge_everything requires CF_ALLOW_DESTRUCTIVE=true."}
     if not urls and not purge_everything:
         return {"error": "Provide urls to purge or set purge_everything=true."}

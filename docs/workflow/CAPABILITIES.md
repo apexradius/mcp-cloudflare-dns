@@ -19,7 +19,7 @@ Tools: list_zones(name_filter?); get_zone(zone_id); get_zone_settings(zone_id); 
 
 Zone ID and record ID define the target. Read, create/update, delete and cache invalidation have different effects. A successful Admin API response is not proof of worldwide DNS propagation or restored user traffic.
 
-CF_ALLOW_DESTRUCTIVE accepts any nonempty environment value, including false. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
+CF_ALLOW_DESTRUCTIVE enables DNS record deletion and whole-zone purge only with a trimmed, case-insensitive true value; every other value, including false, 0 and yes, and a missing flag deny before provider access. Creation, update and targeted cache purge are not covered by that guard. All are consequential operations requiring exact authorization. _call retries mutations as well as reads and supplies no idempotency key; uncertain create outcomes require duplicate checks rather than blanket re-execution. No additional SSE authentication is implemented in this source.
 
 Route the current task through [task workflow guidance](../../prompt.md#task-workflow). No native runtime, MCP connection, paid model, hook or third-party account is activated by this inventory. Verify availability in the actual invocation instead of inferring it from installed source.
 
